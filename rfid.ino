@@ -8,42 +8,42 @@ MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 
 MFRC522::MIFARE_Key key; 
 
-// Init array that will store new NUID 
+// Массив инициализации, в котором будет храниться новый NUID
 byte nuidPICC[4];
 
 void setup() { 
   Serial.begin(115200);
-  SPI.begin(); // Init SPI bus
-  rfid.PCD_Init(); // Init MFRC522 
+  SPI.begin(); // Инициализация шины SPI
+  rfid.PCD_Init(); // Инициализация MFRC522 
 
   for (byte i = 0; i < 6; i++) {
     key.keyByte[i] = 0xFF;
   }
 
-  Serial.println(F("This code scan the MIFARE Classsic NUID."));
-  Serial.print(F("Using the following key:"));
+  Serial.println(F("Этот код сканирует MIFARE Classic NUI."));
+  Serial.print(F("Используя следующий ключ:"));
   printHex(key.keyByte, MFRC522::MF_KEY_SIZE);
 }
  
 void loop() {
 
-  // Look for new cards
+  // Ищу новые карты
   if ( ! rfid.PICC_IsNewCardPresent())
     return;
 
-  // Verify if the NUID has been readed
+  // Убедитесь, что NUID был Инициализирован
   if ( ! rfid.PICC_ReadCardSerial())
     return;
 
-  Serial.print(F("PICC type: "));
+  Serial.print(F("Тип PICC: "));
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
 
-  // Check is the PICC of Classic MIFARE type
+  // Проверьте, является ли PICC типа Classic MIFARE
   if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&  
     piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
     piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
-    Serial.println(F("Your tag is not of type MIFARE Classic."));
+    Serial.println(F("Ваш тег не относится к типу MIFARE Classic."));
     return;
   }
 
@@ -51,33 +51,33 @@ void loop() {
     rfid.uid.uidByte[1] != nuidPICC[1] || 
     rfid.uid.uidByte[2] != nuidPICC[2] || 
     rfid.uid.uidByte[3] != nuidPICC[3] ) {
-    Serial.println(F("A new card has been detected."));
+    Serial.println(F("Обнаружена новая карта."));
 
-    // Store NUID into nuidPICC array
+    // Сохранить NUID в массиве nuidPICC
     for (byte i = 0; i < 4; i++) {
       nuidPICC[i] = rfid.uid.uidByte[i];
     }
    
-    Serial.println(F("The NUID tag is:"));
-    Serial.print(F("In hex: "));
+    Serial.println(F("Тег NUID:"));
+    Serial.print(F("В 16теричном формате: "));
     printHex(rfid.uid.uidByte, rfid.uid.size);
     Serial.println();
-    Serial.print(F("In dec: "));
+    Serial.print(F("В dec: "));
     printDec(rfid.uid.uidByte, rfid.uid.size);
     Serial.println();
   }
-  else Serial.println(F("Card read previously."));
+  else Serial.println(F("Карта считана ранее."));
 
-  // Halt PICC
+  // Остановить PICC
   rfid.PICC_HaltA();
 
-  // Stop encryption on PCD
+  // Остановить шифрование на PCD
   rfid.PCD_StopCrypto1();
 }
 
 
 /**
- * Helper routine to dump a byte array as hex values to Serial. 
+ * Вспомогательная процедура для вывода массива байтов в виде шестнадцатеричных значений в Serial.
  */
 void printHex(byte *buffer, byte bufferSize) {
   for (byte i = 0; i < bufferSize; i++) {
@@ -87,7 +87,7 @@ void printHex(byte *buffer, byte bufferSize) {
 }
 
 /**
- * Helper routine to dump a byte array as dec values to Serial.
+ * Вспомогательная процедура для вывода массива байтов в виде значений dec в Serial.
  */
 void printDec(byte *buffer, byte bufferSize) {
   for (byte i = 0; i < bufferSize; i++) {
